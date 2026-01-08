@@ -47,23 +47,6 @@ CREATE TABLE dbo.Activities (
     FOREIGN KEY (PaqueteId) REFERENCES dbo.Packages(Id)
 );
 
-CREATE TABLE dbo.WorkPlans (
-  Id INT IDENTITY(1,1) PRIMARY KEY,
-  SupervisorId INT NOT NULL,
-  ProyectoId INT NOT NULL,
-  Descripcion NVARCHAR(500) NOT NULL,
-  HorasEstimadas DECIMAL(7,2) NOT NULL,
-  FechaInicio DATE NOT NULL,
-  FechaFin DATE NOT NULL,
-  ArchivoNombre NVARCHAR(200) NULL,
-  CONSTRAINT FK_WorkPlans_Users
-    FOREIGN KEY (SupervisorId) REFERENCES dbo.Users(Id),
-  CONSTRAINT FK_WorkPlans_Projects
-    FOREIGN KEY (ProyectoId) REFERENCES dbo.Projects(Id)
-);
-
 CREATE INDEX IX_Activities_ProyectoId ON dbo.Activities(ProyectoId);
 CREATE INDEX IX_Activities_UsuarioId ON dbo.Activities(UsuarioId);
 CREATE INDEX IX_Activities_Fecha ON dbo.Activities(Fecha);
-CREATE INDEX IX_WorkPlans_SupervisorId ON dbo.WorkPlans(SupervisorId);
-CREATE INDEX IX_WorkPlans_ProyectoId ON dbo.WorkPlans(ProyectoId);

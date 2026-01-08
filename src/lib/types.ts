@@ -18,13 +18,6 @@ export interface Package {
   proyectoId: number;
 }
 
-// CatalogActivity representa un tipo de actividad predefinido por proyecto.
-export interface CatalogActivity {
-  id: number;
-  nombre: string;
-  proyectoId: number;
-}
-
 // Activity representa una actividad registrada por el usuario.
 export interface Activity {
   id: number;
@@ -32,20 +25,6 @@ export interface Activity {
   descripcion: string;
   horas: number;
   fecha: string; // ISO yyyy-mm-dd
-  usuarioId: number;
   proyectoId: number;
-  catalogoId: number;
   paqueteId?: number | null;
-}
-
-// WorkPlan representa una estimación subida por el supervisor.
-export interface WorkPlan {
-  id: number;
-  supervisorId: number;
-  proyectoId: number;
-  descripcion: string;
-  horasEstimadas: number;
-  fechaInicio: string;
-  fechaFin: string;
-  archivoNombre?: string | null;
 }

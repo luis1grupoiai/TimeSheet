@@ -3,40 +3,21 @@
 import { useMemo, useState } from "react";
 import ActivityForm from "@/components/ActivityForm";
 import ActivityList from "@/components/ActivityList";
-import ReportsPanel from "@/components/ReportsPanel";
 import SummaryCards from "@/components/SummaryCards";
-import TopNav from "@/components/TopNav";
-import WorkPlanPanel from "@/components/WorkPlanPanel";
-import {
-  catalogActivities,
-  hardcodedUser,
-  initialActivities,
-  packages,
-  projects,
-  users,
-  workPlans as initialWorkPlans
-} from "@/lib/sample-data";
-import type { Activity, WorkPlan } from "@/lib/types";
+import { hardcodedUser, initialActivities, packages, projects } from "@/lib/sample-data";
+import type { Activity } from "@/lib/types";
 
 // Este componente es "client" porque usa estado (equivalente a un formulario interactivo en el navegador).
 export default function Dashboard() {
   // Estado principal: actividades registradas por el usuario.
   const [activities, setActivities] = useState<Activity[]>(initialActivities);
-  // Estado para plan de trabajo del supervisor.
-  const [workPlans, setWorkPlans] = useState<WorkPlan[]>(initialWorkPlans);
-  // Sección visible en el menú.
-  const [activeSection, setActiveSection] = useState<"dashboard" | "reports" | "plans">(
-    "dashboard"
-  );
   // Estado del formulario para crear o editar actividades.
   const [formState, setFormState] = useState({
     nombre: "",
     descripcion: "",
     horas: "",
     fecha: "",
-    usuarioId: String(hardcodedUser.id),
     proyectoId: "",
-    catalogoId: "",
     paqueteId: ""
   });
   // Si editingId tiene un valor, estamos editando una actividad existente.
@@ -92,43 +73,17 @@ export default function Dashboard() {
 
   // Maneja cambios en los inputs del formulario.
   const handleFormChange = (field: string, value: string) => {
-    setFormState((prev) => {
-      const nextState = { ...prev, [field]: value };
-
-      if (field === "proyectoId") {
-        return {
-          ...nextState,
-          catalogoId: "",
-          paqueteId: "",
-          nombre: ""
-        };
-      }
-
-      if (field === "catalogoId") {
-        const selected = catalogActivities.find(
-          (activity) => activity.id === Number(value)
-        );
-        return {
-          ...nextState,
-          nombre: selected?.nombre ?? prev.nombre
-        };
-      }
-
-      return nextState;
-    });
+    setFormState((prev) => ({
+      ...prev,
+      [field]: value,
+      paqueteId: field === "proyectoId" ? "" : prev.paqueteId
+    }));
   };
 
   // Guarda (crea o actualiza) una actividad.
   const handleSaveActivity = () => {
-    if (
-      !formState.nombre ||
-      !formState.horas ||
-      !formState.fecha ||
-      !formState.proyectoId ||
-      !formState.usuarioId ||
-      !formState.catalogoId
-    ) {
-      alert("Completa usuario, proyecto, tipo, nombre, horas y fecha.");
+    if (!formState.nombre || !formState.horas || !formState.fecha || !formState.proyectoId) {
+      alert("Completa nombre, horas, fecha y proyecto.");
       return;
     }
 
@@ -142,9 +97,7 @@ export default function Dashboard() {
                 descripcion: formState.descripcion,
                 horas: Number(formState.horas),
                 fecha: formState.fecha,
-                usuarioId: Number(formState.usuarioId),
                 proyectoId: Number(formState.proyectoId),
-                catalogoId: Number(formState.catalogoId),
                 paqueteId: formState.paqueteId ? Number(formState.paqueteId) : null
               }
             : activity
@@ -158,9 +111,7 @@ export default function Dashboard() {
         descripcion: formState.descripcion,
         horas: Number(formState.horas),
         fecha: formState.fecha,
-        usuarioId: Number(formState.usuarioId),
         proyectoId: Number(formState.proyectoId),
-        catalogoId: Number(formState.catalogoId),
         paqueteId: formState.paqueteId ? Number(formState.paqueteId) : null
       };
 
@@ -172,9 +123,7 @@ export default function Dashboard() {
       descripcion: "",
       horas: "",
       fecha: "",
-      usuarioId: String(hardcodedUser.id),
       proyectoId: "",
-      catalogoId: "",
       paqueteId: ""
     });
     setEditingId(null);
@@ -187,9 +136,7 @@ export default function Dashboard() {
       descripcion: activity.descripcion,
       horas: String(activity.horas),
       fecha: activity.fecha,
-      usuarioId: String(activity.usuarioId),
       proyectoId: String(activity.proyectoId),
-      catalogoId: String(activity.catalogoId),
       paqueteId: activity.paqueteId ? String(activity.paqueteId) : ""
     });
     setEditingId(activity.id);
@@ -210,117 +157,83 @@ export default function Dashboard() {
       descripcion: "",
       horas: "",
       fecha: "",
-      usuarioId: String(hardcodedUser.id),
       proyectoId: "",
-      catalogoId: "",
       paqueteId: ""
     });
   };
 
-  const handleSaveWorkPlan = (plan: WorkPlan) => {
-    setWorkPlans((prev) => [plan, ...prev]);
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <TopNav activeSection={activeSection} onNavigate={setActiveSection} />
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8">
+      <header className="rounded-2xl bg-white p-6 shadow-sm">
+        <p className="text-sm font-semibold uppercase text-slate-500">Bienvenido</p>
+        <h1 className="mt-2 text-2xl font-semibold text-brand-slate">
+          {hardcodedUser.nombre}
+        </h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Supervisor ID: {hardcodedUser.supervisorId ?? "Sin supervisor"}
+        </p>
+      </header>
 
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8">
-        <header className="rounded-2xl bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold uppercase text-slate-500">Bienvenido</p>
-          <h1 className="mt-2 text-2xl font-semibold text-brand-slate">
-            {hardcodedUser.nombre}
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Supervisor ID: {hardcodedUser.supervisorId ?? "Sin supervisor"}
-          </p>
-        </header>
+      <SummaryCards totals={summary} />
 
-        <SummaryCards totals={summary} />
+      <section className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+        <ActivityForm
+          formState={formState}
+          onChange={handleFormChange}
+          onSave={handleSaveActivity}
+          onCancel={handleCancelEdit}
+          isEditing={Boolean(editingId)}
+          projects={projects}
+          packages={packages}
+        />
 
-        {activeSection === "reports" ? (
-          <ReportsPanel
-            activities={activities}
-            users={users}
-            projects={projects}
-            catalogActivities={catalogActivities}
-          />
-        ) : null}
-
-        {activeSection === "plans" ? (
-          <WorkPlanPanel
-            workPlans={workPlans}
-            projects={projects}
-            supervisor={hardcodedUser}
-            onSave={handleSaveWorkPlan}
-          />
-        ) : null}
-
-        {activeSection === "dashboard" ? (
-          <section className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
-            <ActivityForm
-              formState={formState}
-              onChange={handleFormChange}
-              onSave={handleSaveActivity}
-              onCancel={handleCancelEdit}
-              isEditing={Boolean(editingId)}
-              projects={projects}
-              packages={packages}
-              catalogActivities={catalogActivities}
-              users={users}
-            />
-
-            <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-brand-slate">Tus actividades</h2>
-                  <p className="text-sm text-slate-500">
-                    Filtra por proyecto o fecha para revisar registros específicos.
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <label className="text-xs font-semibold uppercase text-slate-500">
-                    Proyecto
-                    <select
-                      className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
-                      value={filterProjectId}
-                      onChange={(event) => setFilterProjectId(event.target.value)}
-                    >
-                      <option value="">Todos</option>
-                      {projects.map((project) => (
-                        <option key={project.id} value={project.id}>
-                          {project.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="text-xs font-semibold uppercase text-slate-500">
-                    Fecha
-                    <input
-                      className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
-                      type="date"
-                      value={filterDate}
-                      onChange={(event) => setFilterDate(event.target.value)}
-                    />
-                  </label>
-                </div>
-              </div>
-
-              <ActivityList
-                activities={filteredActivities}
-                projects={projects}
-                packages={packages}
-                users={users}
-                catalogActivities={catalogActivities}
-                onEdit={handleEditActivity}
-                onDelete={handleDeleteActivity}
-              />
+        <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-brand-slate">Tus actividades</h2>
+              <p className="text-sm text-slate-500">
+                Filtra por proyecto o fecha para revisar registros específicos.
+              </p>
             </div>
-          </section>
-        ) : null}
-      </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <label className="text-xs font-semibold uppercase text-slate-500">
+                Proyecto
+                <select
+                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                  value={filterProjectId}
+                  onChange={(event) => setFilterProjectId(event.target.value)}
+                >
+                  <option value="">Todos</option>
+                  {projects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.nombre}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-xs font-semibold uppercase text-slate-500">
+                Fecha
+                <input
+                  className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                  type="date"
+                  value={filterDate}
+                  onChange={(event) => setFilterDate(event.target.value)}
+                />
+              </label>
+            </div>
+          </div>
+
+          <ActivityList
+            activities={filteredActivities}
+            projects={projects}
+            packages={packages}
+            onEdit={handleEditActivity}
+            onDelete={handleDeleteActivity}
+          />
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import type { CatalogActivity, Package, Project, User } from "@/lib/types";
+import type { Package, Project } from "@/lib/types";
 
 // Props del formulario: es como un DTO que llega desde el componente padre.
 interface ActivityFormProps {
@@ -7,9 +7,7 @@ interface ActivityFormProps {
     descripcion: string;
     horas: string;
     fecha: string;
-    usuarioId: string;
     proyectoId: string;
-    catalogoId: string;
     paqueteId: string;
   };
   onChange: (field: string, value: string) => void;
@@ -18,8 +16,6 @@ interface ActivityFormProps {
   isEditing: boolean;
   projects: Project[];
   packages: Package[];
-  catalogActivities: CatalogActivity[];
-  users: User[];
 }
 
 // Formulario para crear o editar actividades (equivalente a un formulario HTML tradicional).
@@ -30,16 +26,11 @@ export default function ActivityForm({
   onCancel,
   isEditing,
   projects,
-  packages,
-  catalogActivities,
-  users
+  packages
 }: ActivityFormProps) {
   const selectedProjectId = Number(formState.proyectoId);
   const availablePackages = packages.filter(
     (pkg) => pkg.proyectoId === selectedProjectId
-  );
-  const availableCatalog = catalogActivities.filter(
-    (activity) => activity.proyectoId === selectedProjectId
   );
 
   return (
@@ -54,60 +45,11 @@ export default function ActivityForm({
       </div>
 
       <label className="text-xs font-semibold uppercase text-slate-500">
-        Usuario
-        <select
-          className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
-          value={formState.usuarioId}
-          onChange={(event) => onChange("usuarioId", event.target.value)}
-        >
-          <option value="">Selecciona un usuario</option>
-          {users.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.nombre}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="text-xs font-semibold uppercase text-slate-500">
-        Proyecto
-        <select
-          className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
-          value={formState.proyectoId}
-          onChange={(event) => onChange("proyectoId", event.target.value)}
-        >
-          <option value="">Selecciona un proyecto</option>
-          {projects.map((project) => (
-            <option key={project.id} value={project.id}>
-              {project.nombre}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="text-xs font-semibold uppercase text-slate-500">
-        Tipo de actividad (catálogo)
-        <select
-          className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
-          value={formState.catalogoId}
-          onChange={(event) => onChange("catalogoId", event.target.value)}
-          disabled={!formState.proyectoId}
-        >
-          <option value="">Selecciona un tipo</option>
-          {availableCatalog.map((activity) => (
-            <option key={activity.id} value={activity.id}>
-              {activity.nombre}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="text-xs font-semibold uppercase text-slate-500">
-        Nombre de actividad
+        Nombre
         <input
           className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
           type="text"
-          placeholder="Ej: Desarrollo backend"
+          placeholder="Ej: Revisión de planos"
           value={formState.nombre}
           onChange={(event) => onChange("nombre", event.target.value)}
         />
@@ -148,6 +90,22 @@ export default function ActivityForm({
           />
         </label>
       </div>
+
+      <label className="text-xs font-semibold uppercase text-slate-500">
+        Proyecto
+        <select
+          className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+          value={formState.proyectoId}
+          onChange={(event) => onChange("proyectoId", event.target.value)}
+        >
+          <option value="">Selecciona un proyecto</option>
+          {projects.map((project) => (
+            <option key={project.id} value={project.id}>
+              {project.nombre}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <label className="text-xs font-semibold uppercase text-slate-500">
         Paquete (opcional)

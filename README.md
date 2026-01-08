@@ -43,24 +43,6 @@ Por defecto se expone en http://localhost:3000
 Para esta fase no hay variables obligatorias.  
 Más adelante se usará `.env.local` para conexión a BD y autenticación.
 
-## SQL Server: esquema inicial
-El script con el esquema base está en:
-```
-sql/timesheet_schema.sql
-```
-
-Incluye tablas para usuarios, proyectos, paquetes, catálogo de actividades y actividades.
-
-## Conexión a base de datos (SQL Server)
-Cuando avances a la fase backend, la conexión típica en Next.js usa variables en `.env.local`:
-
-```
-DATABASE_URL="sqlserver://usuario:password@host:1433;database=TimeSheetDB;encrypt=true;trustServerCertificate=true"
-```
-
-Luego en el servidor (por ejemplo con Prisma) se lee `process.env.DATABASE_URL`.
-> Esto es equivalente al `application.properties` en Spring Boot.
-
 ## Publicación con Nginx (reverse proxy)
 
 ### Opción A: Ejecutar Next.js en modo producción y Nginx como proxy
