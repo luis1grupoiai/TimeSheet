@@ -3,15 +3,8 @@
 import { useMemo, useState } from "react";
 import ActivityForm from "@/components/ActivityForm";
 import ActivityList from "@/components/ActivityList";
-import ReportsPanel from "@/components/ReportsPanel";
-import {
-  catalogActivities,
-  hardcodedUser,
-  initialActivities,
-  packages,
-  projects,
-  users
-} from "@/lib/sample-data";
+import SummaryCards from "@/components/SummaryCards";
+import { hardcodedUser, initialActivities, packages, projects } from "@/lib/sample-data";
 import type { Activity } from "@/lib/types";
 
 // Este componente es "client" porque usa estado (equivalente a un formulario interactivo en el navegador).
@@ -24,9 +17,7 @@ export default function Dashboard() {
     descripcion: "",
     horas: "",
     fecha: "",
-    usuarioId: String(hardcodedUser.id),
     proyectoId: "",
-    catalogoId: "",
     paqueteId: ""
   });
   // Si editingId tiene un valor, estamos editando una actividad existente.
@@ -82,43 +73,17 @@ export default function Dashboard() {
 
   // Maneja cambios en los inputs del formulario.
   const handleFormChange = (field: string, value: string) => {
-    setFormState((prev) => {
-      const nextState = { ...prev, [field]: value };
-
-      if (field === "proyectoId") {
-        return {
-          ...nextState,
-          catalogoId: "",
-          paqueteId: "",
-          nombre: ""
-        };
-      }
-
-      if (field === "catalogoId") {
-        const selected = catalogActivities.find(
-          (activity) => activity.id === Number(value)
-        );
-        return {
-          ...nextState,
-          nombre: selected?.nombre ?? prev.nombre
-        };
-      }
-
-      return nextState;
-    });
+    setFormState((prev) => ({
+      ...prev,
+      [field]: value,
+      paqueteId: field === "proyectoId" ? "" : prev.paqueteId
+    }));
   };
 
   // Guarda (crea o actualiza) una actividad.
   const handleSaveActivity = () => {
-    if (
-      !formState.nombre ||
-      !formState.horas ||
-      !formState.fecha ||
-      !formState.proyectoId ||
-      !formState.usuarioId ||
-      !formState.catalogoId
-    ) {
-      alert("Completa usuario, proyecto, tipo, nombre, horas y fecha.");
+    if (!formState.nombre || !formState.horas || !formState.fecha || !formState.proyectoId) {
+      alert("Completa nombre, horas, fecha y proyecto.");
       return;
     }
 
@@ -132,9 +97,7 @@ export default function Dashboard() {
                 descripcion: formState.descripcion,
                 horas: Number(formState.horas),
                 fecha: formState.fecha,
-                usuarioId: Number(formState.usuarioId),
                 proyectoId: Number(formState.proyectoId),
-                catalogoId: Number(formState.catalogoId),
                 paqueteId: formState.paqueteId ? Number(formState.paqueteId) : null
               }
             : activity
@@ -148,9 +111,7 @@ export default function Dashboard() {
         descripcion: formState.descripcion,
         horas: Number(formState.horas),
         fecha: formState.fecha,
-        usuarioId: Number(formState.usuarioId),
         proyectoId: Number(formState.proyectoId),
-        catalogoId: Number(formState.catalogoId),
         paqueteId: formState.paqueteId ? Number(formState.paqueteId) : null
       };
 
@@ -162,9 +123,7 @@ export default function Dashboard() {
       descripcion: "",
       horas: "",
       fecha: "",
-      usuarioId: String(hardcodedUser.id),
       proyectoId: "",
-      catalogoId: "",
       paqueteId: ""
     });
     setEditingId(null);
@@ -177,9 +136,7 @@ export default function Dashboard() {
       descripcion: activity.descripcion,
       horas: String(activity.horas),
       fecha: activity.fecha,
-      usuarioId: String(activity.usuarioId),
       proyectoId: String(activity.proyectoId),
-      catalogoId: String(activity.catalogoId),
       paqueteId: activity.paqueteId ? String(activity.paqueteId) : ""
     });
     setEditingId(activity.id);
@@ -200,9 +157,7 @@ export default function Dashboard() {
       descripcion: "",
       horas: "",
       fecha: "",
-      usuarioId: String(hardcodedUser.id),
       proyectoId: "",
-      catalogoId: "",
       paqueteId: ""
     });
   };
@@ -221,13 +176,6 @@ export default function Dashboard() {
 
       <SummaryCards totals={summary} />
 
-      <ReportsPanel
-        activities={activities}
-        users={users}
-        projects={projects}
-        catalogActivities={catalogActivities}
-      />
-
       <section className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
         <ActivityForm
           formState={formState}
@@ -237,8 +185,6 @@ export default function Dashboard() {
           isEditing={Boolean(editingId)}
           projects={projects}
           packages={packages}
-          catalogActivities={catalogActivities}
-          users={users}
         />
 
         <div className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm">
@@ -283,8 +229,6 @@ export default function Dashboard() {
             activities={filteredActivities}
             projects={projects}
             packages={packages}
-            users={users}
-            catalogActivities={catalogActivities}
             onEdit={handleEditActivity}
             onDelete={handleDeleteActivity}
           />

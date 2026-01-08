@@ -43,14 +43,6 @@ Por defecto se expone en http://localhost:3000
 Para esta fase no hay variables obligatorias.  
 Más adelante se usará `.env.local` para conexión a BD y autenticación.
 
-## SQL Server: esquema inicial
-El script con el esquema base está en:
-```
-sql/timesheet_schema.sql
-```
-
-Incluye tablas para usuarios, proyectos, paquetes, catálogo de actividades y actividades.
-
 ## Publicación con Nginx (reverse proxy)
 
 ### Opción A: Ejecutar Next.js en modo producción y Nginx como proxy
