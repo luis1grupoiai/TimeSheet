@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuario
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      Role     @default(EMPLOYEE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  timeEntries TimeEntry[]
+  projects    ProjectMember[]
+}
+
+// Modelo de Proyecto
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  members     ProjectMember[]
+  timeEntries TimeEntry[]
+}
+
+// Tabla intermedia para relación muchos-a-muchos entre Usuario y Proyecto
+model ProjectMember {
+  id        String   @id @default(uuid())
+  userId    String
+  projectId String
+  role      String   @default("member")
+  joinedAt  DateTime @default(now())
+
+  // Relaciones
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+// Modelo de Entrada de Tiempo
+model TimeEntry {
+  id          String   @id @default(uuid())
+  userId      String
+  projectId   String
+  description String?
+  hours       Float
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([date])
+}
+
+// Enums
+enum Role {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+  COMPLETED
+}
