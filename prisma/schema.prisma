@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+}
+
+model User {
+  id           Int        @id @default(autoincrement()) @map("Id")
+  nombre       String     @db.NVarChar(120) @map("Nombre")
+  supervisorId Int?       @map("SupervisorId")
+  activities   Activity[]
+
+  @@map("Users")
+}
+
+model Project {
+  id              Int               @id @default(autoincrement()) @map("Id")
+  nombre          String            @db.NVarChar(120) @map("Nombre")
+  packages        Package[]
+  activityCatalog ActivityCatalog[]
+  activities      Activity[]
+
+  @@map("Projects")
+}
+
+model Package {
+  id         Int        @id @default(autoincrement()) @map("Id")
+  nombre     String     @db.NVarChar(120) @map("Nombre")
+  proyectoId Int        @map("ProyectoId")
+  project    Project    @relation(fields: [proyectoId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  activities Activity[]
+
+  @@map("Packages")
+}
+
+model ActivityCatalog {
+  id         Int        @id @default(autoincrement()) @map("Id")
+  nombre     String     @db.NVarChar(120) @map("Nombre")
+  proyectoId Int        @map("ProyectoId")
+  project    Project    @relation(fields: [proyectoId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  activities Activity[]
+
+  @@map("ActivityCatalog")
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement()) @map("Id")
+  nombre      String   @db.NVarChar(160) @map("Nombre")
+  descripcion String?  @db.NVarChar(500) @map("Descripcion")
+  horas       Decimal  @db.Decimal(6, 2) @map("Horas")
+  fecha       DateTime @db.Date @map("Fecha")
+  usuarioId   Int      @map("UsuarioId")
+  proyectoId  Int      @map("ProyectoId")
+  catalogoId  Int      @map("CatalogoId")
+  paqueteId   Int?     @map("PaqueteId")
+
+  user     User            @relation(fields: [usuarioId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  project  Project         @relation(fields: [proyectoId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  catalog  ActivityCatalog @relation(fields: [catalogoId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  package  Package?        @relation(fields: [paqueteId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+
+  @@index([proyectoId], map: "IX_Activities_ProyectoId")
+  @@index([usuarioId], map: "IX_Activities_UsuarioId")
+  @@index([fecha], map: "IX_Activities_Fecha")
+  @@map("Activities")
+}

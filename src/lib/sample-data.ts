@@ -30,6 +30,8 @@ export const initialActivities: Activity[] = [
     horas: 3,
     fecha: "2024-07-01",
     proyectoId: 1,
+    usuarioId:1,
+    catalogoId:1,
     paqueteId: 1
   },
   {
@@ -39,6 +41,8 @@ export const initialActivities: Activity[] = [
     horas: 4,
     fecha: "2024-07-02",
     proyectoId: 2,
+    usuarioId:1,
+    catalogoId:1,
     paqueteId: null
   }
 ];

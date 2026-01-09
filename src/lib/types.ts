@@ -26,5 +26,14 @@ export interface Activity {
   horas: number;
   fecha: string; // ISO yyyy-mm-dd
   proyectoId: number;
+  usuarioId: number;
+  catalogoId: number;
   paqueteId?: number | null;
+}
+
+// Activity representa una actividad registrada por el usuario.
+export interface CatalogActivity {
+  id: number;
+  nombre: string;
+  proyectoId: number;
 }
